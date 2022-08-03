@@ -47,4 +47,22 @@ router.post('/notes', (req, res) => {
   }
 })
 
+// DELETE route for deleting notes
+router.delete('/notes/:id', (req, res) => {
+  if (req.params.id) {
+    const removeId = req.params.id;
+
+    for (let i = 0; i < db.length; i++) {
+      if (db[i].id === removeId) {
+        db.splice(i, 1);
+
+        fs.writeFile('./db/db.json', JSON.stringify(db), (err) => {
+          err ? console.error(err) : console.log("Note has been deleted!");
+        })
+        return res.send("Note has been deleted!")
+      }
+    }
+  }
+})
+
 module.exports = router;
