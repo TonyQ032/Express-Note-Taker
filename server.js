@@ -1,23 +1,25 @@
-const express = require("express");
-const path = require("path");
+const express = require('express');
+const path = require('path');
+// const fs = require('fs');
 const app = express();
-const PORT = process.env.port || 3001;
+const PORT = process.env.PORT || 3001;
 
-//Stores incoming requests with data within req.body
+// Importing routers
+const notesRouter = require('./routes/notesRoute.js');
+const apiRouter = require('./routes/apiRoutes');
+
+// Stores incoming requests with data within req.body (middleware)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//Static route
-app.use(express.static("public"));
+// GET route for notes.html
+app.use('/', notesRouter);
+app.use('/api', apiRouter);
 
-//GET route for *
+// Serves static files within the 'public' folder
+app.use(express.static('public'));
 
-//GET route for notes.html
-app.get('/notes', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/notes.html'));
-})
-
-//App listening and running on PORT
+// App listening and running on PORT
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)
 );
