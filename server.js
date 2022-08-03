@@ -6,15 +6,15 @@ const PORT = process.env.PORT || 3001;
 
 // Importing routers
 const notesRouter = require('./routes/notesRoute.js');
-const apiRouter = require('./routes/apiRoutes');
+const dbRouter = require('./routes/dbRouter');
 
 // Stores incoming requests with data within req.body (middleware)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// GET route for notes.html
+// GET routes for notes and db
 app.use('/', notesRouter);
-app.use('/api', apiRouter);
+app.use('/api', dbRouter);
 
 // Serves static files within the 'public' folder
 app.use(express.static('public'));
