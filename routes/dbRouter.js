@@ -1,4 +1,3 @@
-const path = require('path');
 const router = require('express').Router();
 const db = require('../db/db.json');
 const uniqid = require('uniqid');
@@ -6,14 +5,19 @@ const fs = require('fs');
 
 // GET route for reading and returning db.json
 router.get('/notes', (req, res) => {
-  res.json(db);
+  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    if (err) {
+      console.err(err)
+    } else {
+      const dataObj = JSON.parse(data);
+      res.json(dataObj);
+    }
+  })
 })
 
 // POST route for adding notes to db
 router.post('/notes', (req, res) => {
   const {text, title} = req.body;
-
-  //console.log(text, title, "--------", req.body)
 
   if (text && title) {
     const completeNote = {
@@ -21,25 +25,25 @@ router.post('/notes', (req, res) => {
       text,
       id: uniqid()
     }
-    //console.log(completeNote)
 
-    // fs function for adding a new object (completeNote) into db.json
-    fs.readFile('./db/db.json', 'utf-8', (err, data) => {
-      console.log("This is the file data" + data)
-      const dataObj = JSON.parse(data);
-      dataObj.push(completeNote);
-      const dataStr = JSON.stringify(dataObj);
-
-      fs.writeFile('./db/db.json', dataStr, (err) => err 
-      ? console.log(err) : console.log(`Note titled ${completeNote.title} has been added to database.`)
-      )
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const dataObj = JSON.parse(data);
+        dataObj.push(completeNote);
+        fs.writeFile('./db/db.json', JSON.stringify(dataObj), (err) => {
+          err ? console.error(err) : console.log('Note has been written')
+        })
+        res.json(`${completeNote.title} has been added to database.`)
+      }
     })
 
     //Sends db to index.js for generating list on left
-    res.send(db);
+    //res.json(db);
 
   } else {
-    res.status(500).json('Error in posting review!')
+    res.error('Error in posting review!')
   }
 })
 
