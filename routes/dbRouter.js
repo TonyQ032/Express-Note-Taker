@@ -52,22 +52,33 @@ router.post('/notes', (req, res) => {
 // DELETE route for deleting notes
 router.delete('/notes/:id', (req, res) => {
 
-  // Obtains and sets removeId equal to uniqid of note
-  const removeId = req.params.id;
-
-  // Iterates through database, looking for the specific note that has a matching id
-  for (let i = 0; i < db.length; i++) {
-    if (db[i].id === removeId) {
-      // Deletes the specific object from the array database if the id matches
-      db.splice(i, 1);
-
-      // Updates db.json so the deleted file is removed.
-      fs.writeFile('./db/db.json', JSON.stringify(db), (err) => {
-        err ? console.error(err) : console.log("Note has been deleted!");
-      })
-      return res.send("Note has been deleted!")
+  // Reads through db and allows us to modify it
+  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    if (err) {
+      console.log(err)
     }
-  }
+    else {
+      const dataObj = JSON.parse(data);
+      //Checks to see if there is a parameter listed
+      if (req.params.id) {
+
+        // Iterates through database, looking for the specific note that has a matching id
+        for (let i = 0; i < dataObj.length; i++) {
+          if (dataObj[i].id === req.params.id) {
+            // Deletes the specific object from the array database if the id matches
+            dataObj.splice(i, 1);
+
+            // Updates db.json so the deleted file is removed.
+            fs.writeFile('./db/db.json', JSON.stringify(dataObj), (err) => {
+              err ? console.error(err) : console.log("Note has been deleted!");
+            })
+
+            return res.send("Note has been deleted!");
+          }
+        }
+      }
+    }
+  })
 })
 
 module.exports = router;
