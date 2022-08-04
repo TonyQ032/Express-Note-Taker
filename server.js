@@ -1,7 +1,6 @@
 const express = require('express');
-const path = require('path');
-// const fs = require('fs');
 const app = express();
+const path = require('path');
 const PORT = process.env.PORT || 3001;
 
 // Importing routers
@@ -12,12 +11,15 @@ const dbRouter = require('./routes/dbRouter');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serves static files within the 'public' folder
+app.use(express.static('public'));
+
 // GET routes for notes and db
 app.use('/', notesRouter);
 app.use('/api', dbRouter);
 
-// Serves static files within the 'public' folder
-app.use(express.static('public'));
+//Universal route, returns user to index if invalid url is entered
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')))
 
 // App listening and running on PORT
 app.listen(PORT, () =>

@@ -9,6 +9,7 @@ router.get('/notes', (req, res) => {
     if (err) {
       console.err(err)
     } else {
+      //Updates index.js with database
       const dataObj = JSON.parse(data);
       res.json(dataObj);
     }
@@ -17,50 +18,54 @@ router.get('/notes', (req, res) => {
 
 // POST route for adding notes to db
 router.post('/notes', (req, res) => {
-  const {text, title} = req.body;
 
-  if (text && title) {
-    const completeNote = {
-      title,
-      text,
-      id: uniqid()
-    }
+  // Assigns note text and titles to usable variables
+  const { text, title } = req.body;
 
-    fs.readFile('./db/db.json', 'utf8', (err, data) => {
-      if (err) {
-        console.log(err);
-      } else {
-        const dataObj = JSON.parse(data);
-        dataObj.push(completeNote);
-        fs.writeFile('./db/db.json', JSON.stringify(dataObj), (err) => {
-          err ? console.error(err) : console.log('Note has been written')
-        })
-        res.json(`${completeNote.title} has been added to database.`)
-      }
-    })
-
-    //Sends db to index.js for generating list on left
-    //res.json(db);
-
-  } else {
-    res.error('Error in posting review!')
+  // Creates a new object with the info taken from the user input, also creates a unique id
+  const completeNote = {
+    title,
+    text,
+    id: uniqid()
   }
+
+  // Reads the database
+  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      // Pushes the user info into the current database
+      const dataObj = JSON.parse(data);
+      dataObj.push(completeNote);
+
+      // Updates db.json file. File is rewritten with new note
+      fs.writeFile('./db/db.json', JSON.stringify(dataObj), (err) => {
+        err ? console.error(err) : console.log('Note has been written')
+      })
+
+      // Sends response
+      res.json(`${completeNote.title} has been added to database.`)
+    }
+  })
 })
 
 // DELETE route for deleting notes
 router.delete('/notes/:id', (req, res) => {
-  if (req.params.id) {
-    const removeId = req.params.id;
 
-    for (let i = 0; i < db.length; i++) {
-      if (db[i].id === removeId) {
-        db.splice(i, 1);
+  // Obtains and sets removeId equal to uniqid of note
+  const removeId = req.params.id;
 
-        fs.writeFile('./db/db.json', JSON.stringify(db), (err) => {
-          err ? console.error(err) : console.log("Note has been deleted!");
-        })
-        return res.send("Note has been deleted!")
-      }
+  // Iterates through database, looking for the specific note that has a matching id
+  for (let i = 0; i < db.length; i++) {
+    if (db[i].id === removeId) {
+      // Deletes the specific object from the array database if the id matches
+      db.splice(i, 1);
+
+      // Updates db.json so the deleted file is removed.
+      fs.writeFile('./db/db.json', JSON.stringify(db), (err) => {
+        err ? console.error(err) : console.log("Note has been deleted!");
+      })
+      return res.send("Note has been deleted!")
     }
   }
 })
